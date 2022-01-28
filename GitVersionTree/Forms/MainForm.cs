@@ -9,6 +9,8 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Collections;
 using System.IO;
+using Newtonsoft.Json;
+
 
 namespace GitVersionTree
 {
@@ -86,13 +88,13 @@ namespace GitVersionTree
 
         private void GenerateButton_Click(object sender, EventArgs e)
         {
-            if (String.IsNullOrEmpty(Reg.Read("GitPath")) ||
-                String.IsNullOrEmpty(Reg.Read("GraphvizPath")) ||
-                String.IsNullOrEmpty(Reg.Read("GitRepositoryPath")))
-            {
-                MessageBox.Show("Please select a Git, Graphviz & Git repository.", "Generate", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            else
+            //if (String.IsNullOrEmpty(Reg.Read("GitPath")) ||
+            //    String.IsNullOrEmpty(Reg.Read("GraphvizPath")) ||
+            //    String.IsNullOrEmpty(Reg.Read("GitRepositoryPath")))
+            //{
+            //    MessageBox.Show("Please select a Git, Graphviz & Git repository.", "Generate", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //}
+            //else
             {
                 StatusRichTextBox.Text = "";
                 RepositoryName = new DirectoryInfo(GitRepositoryPathTextBox.Text).Name;
@@ -292,6 +294,24 @@ namespace GitVersionTree
             }
 
             Status("Processed " + Nodes.Count + " branch(es) ...");
+
+
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["nodes"] = Nodes;
+            dict["vDecorateDictionary"] = DecorateDictionary;
+
+            //open file stream
+            string filename = Path.Combine(Reg.Read("GitRepositoryPath"),"git.dump");
+            Status("Save database " + filename + "...");
+            using (StreamWriter file = File.CreateText(filename))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                //serialize object directly into file stream
+                serializer.Serialize(file, dict);
+            }
+
+            if (String.IsNullOrEmpty(Reg.Read("GraphvizPath")))
+                return;
 
             StringBuilder DotStringBuilder = new StringBuilder();
             Status("Generating dot file ...");
