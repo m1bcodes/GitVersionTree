@@ -1,3 +1,8 @@
+Modifications in this branch
+----------------------------
+
+Datastructures retrieved from git repository are dumped to a json file.
+
 GitVersionTree
 --------------
 
